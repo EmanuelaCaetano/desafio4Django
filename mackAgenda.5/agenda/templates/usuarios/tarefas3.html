@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarefas</title>
+</head>
+<body>
+    {% extends 'usuarios/tarefas.html' %} <!-- Certifique-se de que este é o seu template base -->
+
+    {% block content %}
+    <h1>Tarefas</h1>
+
+    <!-- Formulário para criar uma nova tarefa -->
+    <form method="POST" action="{% url 'criar_tarefa' %}">
+        {% csrf_token %}
+        {{ form.as_p }}  <!-- Formulário para criar a tarefa -->
+        <button type="submit">Criar Tarefa</button>
+    </form>
+
+    <!-- Listagem das tarefas -->
+    <ul>
+        {% for tarefa in tarefas %}
+            <li>
+                {{ tarefa.nome }}  <!-- Substitua 'nome' pelo campo que você deseja mostrar -->
+                <a href="{% url 'editar_tarefa' tarefa.id %}">Editar</a>
+                <form method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="tarefa_id" value="{{ tarefa.id }}">
+                    <button type="submit" name="excluir">Excluir</button>
+                </form>
+            </li>
+        {% empty %}
+            <li>Nenhuma tarefa encontrada.</li>
+        {% endfor %}
+    </ul>
+
+    {% endblock %}
+</body>
+</html>

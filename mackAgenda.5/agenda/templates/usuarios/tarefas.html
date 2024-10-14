@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarefas Salvas</title>
+    <style>
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        .form-container, .task-container, .task-list {
+            padding: 20px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Tarefas</h2>
+
+        <!-- Container onde as tarefas salvas serão exibidas -->
+        <div class="task-list" id="taskListContainer">
+            <h3>Tarefas Salvas</h3>
+            {% if Tarefas %}
+                {% for tarefa in Tarefas %}
+                <div class="task-container">
+                    <strong>Disciplina:</strong> {{ tarefa.disciplina }}<br>
+                    <strong>Data:</strong> {{ tarefa.data }}<br>
+                    <strong>Descrição:</strong> {{ tarefa.descricao }}<br>
+
+                    <!-- Botões Editar e Excluir -->
+                    <div class="button-container">
+                        <form action="{% url 'editar_tarefa' tarefa.id %}" method="get" style="display:inline;">
+                            <button type="submit">Editar</button>
+                        </form>
+                        <form action="{% url 'excluir_tarefa' tarefa.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit">Excluir</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>Nenhuma tarefa salva.</p>
+            {% endif %}
+        </div>
+
+        <!-- Formulário para adicionar nova tarefa -->
+        <div class="form-container">
+            <h3>Adicionar Nova Tarefa</h3>
+            <form action="{% url 'criar_tarefa' %}" method="POST">
+                {% csrf_token %}
+                {{ form.as_p }} <!-- Renderiza o formulário do Django -->
+                <div class="button-container">
+                    <button type="submit">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

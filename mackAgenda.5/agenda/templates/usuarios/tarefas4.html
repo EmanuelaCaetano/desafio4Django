@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarefas</title>
+    <style>
+        /* Estilo da barra superior */
+        .top-bar {
+            background-color: #e60022; /* Cor da barra */
+            height: 100px; /* Altura da barra */
+            width: 100%; /* Largura da barra */
+            position: fixed; /* Fixa a barra no topo */
+            top: 0; /* Posiciona a barra no topo */
+            left: 0; /* Alinha a barra à esquerda */
+            z-index: 1000; /* Garante que a barra fique acima de outros elementos */
+            display: flex; /* Usado para alinhar itens na barra */
+            align-items: center; /* Alinha verticalmente os itens */
+            padding-left: 20px; /* Espaçamento à esquerda */
+        }
+
+        /* Estilo para a imagem */
+        .top-bar img {
+            height: 80px; /* Altura da imagem */
+            margin-right: 20px; /* Espaço entre a imagem e o conteúdo */
+        }
+
+        /* Ajusta o conteúdo da página para não ficar embaixo da barra */
+        .container {
+            margin-top: 120px; /* Dá espaço para a barra */
+            display: flex; /* Usado para centralizar o conteúdo */
+            flex-direction: column; /* Alinha os itens verticalmente */
+            align-items: center; /* Centraliza os itens horizontalmente */
+        }
+
+        /* Estilo do botão */
+        button {
+            margin-top: 10px; /* Espaço acima do botão */
+        }
+
+        /* Estilo da lista de tarefas */
+        ul {
+            list-style-type: none; /* Remove os marcadores da lista */
+            padding: 0; /* Remove o preenchimento padrão */
+            text-align: center; /* Centraliza o texto da lista */
+        }
+
+        /* Estilo das tarefas */
+        li {
+            margin: 10px 0; /* Espaço entre as tarefas */
+        }
+
+        /* Estilo do container da nova tarefa */
+        .new-task-container {
+            position: fixed; /* Fica fixo na tela */
+            top: 50%; /* Centraliza verticalmente */
+            left: 50%; /* Centraliza horizontalmente */
+            transform: translate(-50%, -50%); /* Ajusta a posição para centralizar */
+            background-color: white; /* Fundo branco */
+            border: 1px solid #ccc; /* Borda cinza */
+            padding: 30px; /* Aumenta o espaçamento interno */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Sombra */
+            z-index: 1001; /* Acima da barra */
+            display: none; /* Inicialmente escondido */
+            border-radius: 10px; /* Cantos arredondados do container */
+            width: 400px; /* Largura ajustada do container */
+        }
+
+        /* Estilo para o fundo escurecido */
+        .overlay {
+            position: fixed; /* Fica fixo na tela */
+            top: 0;
+            left: 0;
+            width: 100%; /* Largura total */
+            height: 100%; /* Altura total */
+            background-color: rgba(0, 0, 0, 0.5); /* Fundo escurecido */
+            z-index: 1000; /* Abaixo do container */
+            display: none; /* Inicialmente escondido */
+        }
+
+        /* Estilo dos campos de entrada */
+        input, select {
+            width: calc(100% - 10px); /* Largura ajustada para ocupar 100% menos 10px de margem */
+            padding: 10px; /* Espaçamento interno */
+            margin-top: 10px; /* Espaço acima dos campos */
+            border: 1px solid #ccc; /* Borda cinza */
+            border-radius: 5px; /* Cantos arredondados */
+        }
+
+        /* Estilo do botão Salvar */
+        .save-button {
+            background-color: #e60022; /* Cor vermelha da barra */
+            color: white; /* Cor do texto */
+            border: none; /* Sem borda */
+            padding: 10px; /* Espaçamento interno */
+            cursor: pointer; /* Cursor em forma de mão */
+            width: 100%; /* Largura total */
+            border-radius: 5px; /* Cantos arredondados */
+            margin-top: 10px; /* Espaço acima do botão */
+        }
+
+        .save-button:hover {
+            opacity: 0.9; /* Efeito ao passar o mouse */
+        }
+
+        /* Estilo do botão Fechar */
+        .close-button {
+            background-color: transparent; /* Fundo transparente */
+            border: none; /* Sem borda */
+            color: #e60022; /* Cor vermelha da barra */
+            cursor: pointer; /* Cursor em forma de mão */
+            margin-top: 5px; /* Espaço acima do botão */
+        }
+
+        /* Estilo para os campos de tarefa */
+        .task-inputs {
+            display: flex; /* Usado para alinhar os campos lado a lado */
+            flex-direction: column; /* Alinha os itens verticalmente */
+            width: 100%; /* Largura total */
+        }
+
+        /* Estilo para as labels dos campos */
+        label {
+            margin-top: 10px; /* Espaço acima das labels */
+        }
+
+        /* Estilo do container de tarefas */
+        .task-container {
+            border: 2px solid #e60022; /* Borda vermelha */
+            border-radius: 10px; /* Cantos arredondados */
+            padding: 15px; /* Aumenta o espaçamento interno */
+            margin: 10px 0; /* Espaço entre as tarefas */
+            background-color: #f9f9f9; /* Fundo cinza claro */
+            width: 400px; /* Largura ajustada do container */
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); /* Sombra suave para dar profundidade */
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra superior com a imagem -->
+    <div class="top-bar">
+        <img src="https://seeklogo.com/images/U/universidade-presbiteriana-mackenzie-logo-2CF381A245-seeklogo.com.png" alt="Logo Mackenzie">
+    </div>
+
+    <div class="container">
+        <h1>Tarefas</h1>
+
+        <!-- Formulário para criar nova tarefa -->
+        <form id="taskForm" method="post" action="{% url 'criar_tarefa' %}">
+            {% csrf_token %}
+            {{ form.as_p }} <!-- Renderiza o formulário para criar uma tarefa -->
+            <button type="submit" onclick="showTaskContainer(event)">Criar Tarefa</button>
+        </form>
+
+        <h2>Lista de Tarefas</h2>
+        <div id="taskListContainer">
+            <!-- Container para as tarefas geradas -->
+        </div>
+    </div>
+
+    <!-- Container para nova tarefa -->
+    <div id="overlay" class="overlay"></div>
+    <div id="newTaskContainer" class="new-task-container">
+        <h2>Adicionar Nova Tarefa</h2>
+
+        <!-- Campos para disciplina, data e descrição -->
+        <form id="newTaskForm">
+            <div class="task-inputs">
+                <label for="disciplina">Disciplina:</label>
+                <input type="text" id="disciplina" required>
+
+                <label for="data">Data:</label>
+                <input type="date" id="data" required>
+
+                <label for="descricao">Descrição:</label>
+                <input type="text" id="descricao" required>
+            </div>
+
+            <button type="button" class="save-button" onclick="saveTask()">Salvar</button>
+            <button type="button" class="close-button" onclick="closeTaskContainer()">Fechar</button>
+        </form>
+    </div>
+
+    <script>
+        function showTaskContainer(event) {
+            event.preventDefault(); // Impede o envio do formulário
+            document.getElementById('newTaskContainer').style.display = 'block'; // Mostra o container
+            document.getElementById('overlay').style.display = 'block'; // Mostra o fundo escurecido
+        }
+
+        function closeTaskContainer() {
+            document.getElementById('newTaskContainer').style.display = 'none'; // Esconde o container
+            document.getElementById('overlay').style.display = 'none'; // Esconde o fundo escurecido
+        }
+
+        function saveTask() {
+            // Obtém os valores dos campos
+            const disciplina = document.getElementById('disciplina').value;
+            const data = document.getElementById('data').value;
+            const descricao = document.getElementById('descricao').value;
+
+            // Cria um novo container para a tarefa
+            const taskContainer = document.createElement('div');
+            taskContainer.className = 'task-container'; // Adiciona a classe de estilo
+
+            // Adiciona o conteúdo ao container
+            taskContainer.innerHTML = `
+                <strong>Disciplina:</strong> ${disciplina}<br>
+                <strong>Data:</strong> ${data}<br>
+                <strong>Descrição:</strong> ${descricao}
+                <div>
+                    <form method="get" action="#" style="display:inline;">
+                        <button type="submit">Editar</button>
+                    </form>
+                    <form method="post" action="#" style="display:inline;">
+                        <button type="submit">Excluir</button>
+                    </form>
+                </div>
+            `;
+
+            // Adiciona o novo container à lista de tarefas
+            const taskListContainer = document.getElementById('taskListContainer');
+            taskListContainer.appendChild(taskContainer);
+
+            closeTaskContainer(); // Fecha o container
+        }
+    </script>
+</body>
+</html>
